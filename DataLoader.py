@@ -1,5 +1,6 @@
 """
-DataLoader loads the data and creates the train and test sets
+DataLoader loads the data from fer2013.csv and creates the train and test sets
+used by CNN
 """
 
 import pandas as pd
