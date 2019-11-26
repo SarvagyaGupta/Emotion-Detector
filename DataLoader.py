@@ -14,10 +14,10 @@ class DataLoader:
         self.dataset = pd.read_csv('fer2013.csv')
 
         train, test = train_test_split(self.dataset, test_size=0.3)
-        self.train = self.process_data(train)
-        self.test = self.process_data(test)
+        self.train = self.__process_data(train)
+        self.test = self.__process_data(test)
 
-    def process_data(self, data):
+    def __process_data(self, data):
         tagged_image_list = []
         for csv_row in data.iterrows():
             tagged_image_list.append(TaggedImage(csv_row[1]))
