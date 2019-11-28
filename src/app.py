@@ -10,14 +10,10 @@ detector = EmotionDetector()
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    image = cv2.imread("../test/test.jpg")
-    _, image_encoded = cv2.imencode('.jpg', image)
-    predictions = detector.predict_emotion(image_encoded)
+    r = request
+    predictions = detector.predict_emotion(r.data)
 
-    print type(predictions)
     response = json.dumps(predictions)
-    # response.status_code = 200
-    print response
     return response
 
 
