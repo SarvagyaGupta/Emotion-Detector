@@ -58,6 +58,6 @@ model.fit(np.array(train_pixels), np.array(train_emotions), batch_size=batch_siz
 
 # Saving the model
 saved_model = model.to_json()
-with open("model/emotion_detector_3.json", "w") as json_file:
+with open("../model/emotion_detector_3.json", "w") as json_file:
     json_file.write(saved_model)
-model.save_weights("model/emotion_detector_3.h5")
+model.save_weights("../model/emotion_detector_3.h5")
