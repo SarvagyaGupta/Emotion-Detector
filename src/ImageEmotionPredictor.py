@@ -21,25 +21,40 @@ class EmotionDetector:
 
         self.labels = ['Angry', 'Disgust', 'Fear', 'Happy', 'Sad', 'Surprise', 'Neutral']
 
-    def flask_test(self):
-        return 'Done'
+    def predict_emotion(self, image_encoded_str):
+        """
 
-    def predict_emotion(self, image_path):
-        image = cv2.imread(image_path)
+        :param image_encoded_str:
+        :return:
+        """
+
+        image_encoded = np.fromstring(image_encoded_str.data, np.uint8)
+        image = cv2.imdecode(image_encoded, cv2.IMREAD_COLOR)
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        face = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
-        faces = face.detectMultiScale(gray, 1.3, 10)
+        face_classifier = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+        faces = face_classifier.detectMultiScale(gray, 1.3, 10)
 
-        for (x, y, w, h) in faces:
-            roi_gray = gray[y:y + h, x:x + w]
-            cropped_img = np.expand_dims(np.expand_dims(cv2.resize(roi_gray, (48, 48)), -1), 0)
-            cv2.normalize(cropped_img, cropped_img, alpha=0, beta=1, norm_type=cv2.NORM_L2, dtype=cv2.CV_32F)
-            cv2.rectangle(image, (x, y), (x + w, y + h), (255, 0, 0), 2)
+        predictions = {'predictions': []}
 
+        for face in faces:
+            # roi_gray = gray[y:y + h, x:x + w]
+            # cropped_img = np.expand_dims(np.expand_dims(cv2.resize(roi_gray, (48, 48)), -1), 0)
+            # cv2.normalize(cropped_img, cropped_img, alpha=0, beta=1, norm_type=cv2.NORM_L2, dtype=cv2.CV_32F)
+            # cv2.rectangle(image, (x, y), (x + w, y + h), (255, 0, 0), 2)
+            #
             # predicting the emotion
-            yhat = self.modeled_emotion.predict(cropped_img)
-            cv2.putText(image, self.labels[int(np.argmax(yhat))], (x, y), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 0), 2, cv2.LINE_AA)
-            print("Emotion: " + self.labels[int(np.argmax(yhat))])
+            # yhat = self.modeled_emotion.predict(cropped_img)
+            # cv2.putText(image, self.labels[int(np.argmax(yhat))], (x, y), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 0), 2, cv2.LINE_AA)
+            # print("Emotion: " + self.labels[int(np.argmax(yhat))])
+            predictions['predictions'].append(self.__predict_face_emotion(gray, face))
 
-        cv2.imwrite('Emotion.jpg', image)
-        cv2.waitKey()
+        return predictions
+
+    def __predict_face_emotion(self, gray, face):
+        x, y, w, h = face
+        roi_gray = gray[y:y + h, x:x + w]
+        cropped_img = np.expand_dims(np.expand_dims(cv2.resize(roi_gray, (48, 48)), -1), 0)
+        cv2.normalize(cropped_img, cropped_img, alpha=0, beta=1, norm_type=cv2.NORM_L2, dtype=cv2.CV_32F)
+        predicted_emotion = self.labels[int(np.argmax(self.modeled_emotion.predict(cropped_img)))]
+
+        return {'top_left_x': x, 'top_left_y': y, 'height': h, 'width': w, 'emotion': predicted_emotion}

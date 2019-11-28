@@ -1,14 +1,22 @@
 from flask import Flask, jsonify, request
 from ImageEmotionPredictor import EmotionDetector
+import cv2
 
 app = Flask(__name__)
 
+detector = EmotionDetector()
 
-@app.route('/predict', methods=['GET'])
+
+@app.route('/predict', methods=['POST'])
 def predict():
-   predictions = EmotionDetector.flask_test()
-   return jsonify(predictions)
+    image = cv2.imread("test/test.jpg")
+    _, image_encoded = cv2.imencode('.jpg', image)
+    predictions = detector.predict_emotion(image_encoded)
+
+    response = jsonify(predictions)
+    response.status_code = 200
+    return response
 
 
 if __name__ == '__main__':
-   app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)
