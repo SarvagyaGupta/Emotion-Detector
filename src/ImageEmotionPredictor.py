@@ -32,8 +32,13 @@ for (x, y, w, h) in faces:
 
     # predicting the emotion
     yhat = modeled_emotion.predict(cropped_img)
+    probability = modeled_emotion.predict_proba(cropped_img)
+    temp = []
+    for i in probability:
+        temp.append(i[1])
     cv2.putText(image, labels[int(np.argmax(yhat))], (x, y), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 0), 2, cv2.LINE_AA)
     print("Emotion: " + labels[int(np.argmax(yhat))])
+    print(temp)
 
 cv2.imwrite('Emotion.jpg', image)
 cv2.waitKey()
