@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, request
 from ImageEmotionPredictor import EmotionDetector
 import cv2
-import jsonpickle
+import json
 
 app = Flask(__name__)
 
@@ -15,7 +15,7 @@ def predict():
     predictions = detector.predict_emotion(image_encoded)
 
     print predictions
-    response = jsonpickle.encode(predictions)
+    response = json.dumps(predictions)
     # response.status_code = 200
     print response
     return response
