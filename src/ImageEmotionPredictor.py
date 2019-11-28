@@ -60,4 +60,4 @@ class EmotionDetector:
         yhat = self.modeled_emotion.predict(cropped_img)
         predicted_emotion = self.labels[int(np.argmax(yhat))]
 
-        return {'top_left_x': x, 'top_left_y': y, 'height': h, 'width': w, 'emotion': predicted_emotion}
+        return {'top_left_x': str(x), 'top_left_y': str(y), 'height': str(h), 'width': str(w), 'emotion': str(predicted_emotion)}
