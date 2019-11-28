@@ -14,7 +14,7 @@ import numpy as np
 num_features = 64
 num_labels = 7
 batch_size = 128
-epochs = 10
+epochs = 100
 width, height = 48, 48
 
 data = DataLoader(num_labels)
@@ -58,10 +58,6 @@ model.fit(np.array(train_pixels), np.array(train_emotions), batch_size=batch_siz
 
 # Saving the model
 saved_model = model.to_json()
-with open("emotion_detector.json", "w") as json_file:
+with open("emotion_detector_3.json", "w") as json_file:
     json_file.write(saved_model)
-model.save_weights("emotion_detector.h5")
-
-# emotions_hat = model.predict_classes(test_pixels)
-# for i in range(len(test_emotions)):
-#     print emotions_hat[i], test_emotions[i]
+model.save_weights("emotion_detector_3.h5")
