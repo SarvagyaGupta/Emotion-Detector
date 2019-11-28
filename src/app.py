@@ -14,8 +14,10 @@ def predict():
     _, image_encoded = cv2.imencode('.jpg', image)
     predictions = detector.predict_emotion(image_encoded)
 
+    print predictions
     response = jsonpickle.encode(predictions)
     # response.status_code = 200
+    print response
     return response
 
 
