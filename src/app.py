@@ -1,0 +1,14 @@
+from flask import Flask, jsonify, request
+from ImageEmotionPredictor import EmotionDetector
+
+app = Flask(__name__)
+
+
+@app.route('/predict', methods=['GET'])
+def predict():
+   predictions = EmotionDetector.flask_test()
+   return jsonify(predictions)
+
+
+if __name__ == '__main__':
+   app.run(host='0.0.0.0', port=5000, debug=True)
