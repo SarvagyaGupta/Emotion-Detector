@@ -1,6 +1,7 @@
 import requests
+import json
 
 url = 'http://34.94.140.117:5000/predict'
-response = requests.get(url)
+response = requests.post(url)
 
-print response.json()
+print json.loads(response.text)
