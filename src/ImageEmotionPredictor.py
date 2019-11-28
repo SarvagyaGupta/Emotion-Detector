@@ -47,6 +47,7 @@ class EmotionDetector:
             # yhat = self.modeled_emotion.predict(cropped_img)
             # cv2.putText(image, self.labels[int(np.argmax(yhat))], (x, y), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 0), 2, cv2.LINE_AA)
             # print("Emotion: " + self.labels[int(np.argmax(yhat))])
+            print "1", type(self.__predict_face_emotion(gray, face))
             predictions['predictions'].append(self.__predict_face_emotion(gray, face))
 
         return predictions
