@@ -13,13 +13,13 @@ test = data.test
 test_pixels, test_emotions = [image.pixels for image in test], [image.label for image in test]
 
 # Load the model
-emotion_file = open('emotion_detector.json', 'r')
+emotion_file = open('model/emotion_detector.json', 'r')
 loaded_model_json = emotion_file.read()
 emotion_file.close()
 modeled_emotion = model_from_json(loaded_model_json)
 
 # Load the weights
-modeled_emotion.load_weights('emotion_detector.h5')
+modeled_emotion.load_weights('model/emotion_detector.h5')
 
 print 'Model loaded... Making very accurate predictions...'
 
