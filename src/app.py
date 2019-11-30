@@ -11,10 +11,16 @@ detector = EmotionDetector()
 @app.route('/predict', methods=['POST'])
 def predict():
     data = request.files['image'].read()
-    image = np.asarray(bytearray(data), dtype='uint8')
-    image = cv2.imdecode(image, cv2.IMREAD_COLOR)
+    input_image = np.asarray(bytearray(data), dtype='uint8')
+    input_image = cv2.imdecode(input_image, cv2.IMREAD_COLOR)
 
-    return detector.predict_emotion(image)
+    predictions = detector.predict_emotion(input_image)
+    for prediction in predictions['predictions']:
+        detector.draw_face_boundary(input_image, (prediction['top_left_x'], prediction['top_left_y']
+                                                  , prediction['width'], prediction['height']), (0, 255, 0))
+
+    predictions['image'] = cv2.imencode('.jpg', input_image).read().encode('base64')
+    return predictions
 
 
 if __name__ == '__main__':
