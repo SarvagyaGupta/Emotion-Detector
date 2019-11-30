@@ -43,7 +43,8 @@ class EmotionDetector:
         prediction = self.modeled_emotion.predict(cropped_img)
         predicted_emotion = self.labels[int(np.argmax(prediction))]
 
-        return {'top_left_x': x, 'top_left_y': y, 'height': h, 'width': w, 'emotion': predicted_emotion}
+        return {'top_left_x': x.item(), 'top_left_y': y.item(), 'height': h.item(), 'width': w.item()
+                , 'emotion': predicted_emotion}
 
     def draw_face_boundary(self, image, face, color):
         x, y, w, h = face

@@ -2,6 +2,7 @@ from flask import Flask, request
 from ImageEmotionPredictor import EmotionDetector
 import numpy as np
 import cv2
+import base64
 
 app = Flask(__name__)
 
@@ -19,7 +20,11 @@ def predict():
         detector.draw_face_boundary(input_image, (prediction['top_left_x'], prediction['top_left_y']
                                                   , prediction['width'], prediction['height']), (0, 255, 0))
 
-    predictions['image'] = cv2.imencode('.jpg', input_image).read().encode('base64')
+    _, output_image = cv2.imencode('.jpg', input_image)
+    predictions['image'] = base64.b64encode(output_image)
+
+    print predictions
+
     return predictions
 
 
