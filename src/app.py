@@ -1,6 +1,7 @@
 from flask import Flask, request
 from ImageEmotionPredictor import EmotionDetector
-import werkzeug
+import numpy as np
+import cv2
 
 app = Flask(__name__)
 
@@ -9,14 +10,12 @@ detector = EmotionDetector()
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    image_file = request.files['image']
-    print image_file
-    print type(image_file)
+    data = request.files['image'].read()
+    image = np.asarray(bytearray(data), dtype='uint8')
+    image = cv2.imdecode(image, cv2.IMREAD_COLOR)
 
-    filename = werkzeug.utils.secure_filename(image_file.filename)
-    image_file.save(filename)
+    return detector.predict_emotion(image)
 
-    return detector.predict_emotion("123")
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

@@ -22,11 +22,7 @@ class EmotionDetector:
 
         self.labels = ['Angry', 'Disgust', 'Fear', 'Happy', 'Sad', 'Surprise', 'Neutral']
 
-    def predict_emotion(self, image_encoded_str):
-        _, image_encoded_str = cv2.imencode('.jpg', cv2.imread('image.jpg'))
-        image_encoded = np.fromstring(image_encoded_str, np.uint8)
-        image = cv2.imdecode(image_encoded, cv2.IMREAD_COLOR)
-        # image = np.array(image_encoded_str, dtype=np.uint8)
+    def predict_emotion(self, image):
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         face_classifier = cv2.CascadeClassifier('../haarcascade_frontalface_default.xml')
         faces = face_classifier.detectMultiScale(gray, 1.3, 10)
