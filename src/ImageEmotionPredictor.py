@@ -49,7 +49,7 @@ class EmotionDetector:
         total = math.sqrt(total)
         return total
 
-    def __get_tweet_info(self, data, probab, photo_indices):
+    def __get_tweet_info(self, data, probabilities, photo_indices):
         result = []
         minimum = sys.maxsize
 
@@ -61,16 +61,19 @@ class EmotionDetector:
                 if i in photo_indices:
                     e += 1
             if e > 1 and photo_indices[0] == indices[0]:
-                p = self.__calculate_closeness(temp, probab)
+                p = self.__calculate_closeness(temp, probabilities)
                 if p < minimum:
                     minimum = p
                     tweet = data.at[index_label, 'content']
                     person = data.at[index_label, 'author']
                     result.append((person, tweet, p))
 
+        if len(result) == 0:
+            return "", ""
+
         result.sort(key=lambda tup: tup[2])
         result = result[:2]
-        twe = result[random.randint(0, len(result) - 1)]
+        twe = random.choice(result)
         return twe[0], twe[1]
 
     def __predict_face_emotion(self, gray, face):
@@ -89,16 +92,16 @@ class EmotionDetector:
         photo_indices = heapq.nlargest(3, range(len(probab)), probab.__getitem__)
 
         # percentage of that emotion
-        percentage = [100 * probab[x] for x in photo_indices]
-        percentage = [round(x, 2) for x in percentage]
+        percentage = [100 * probab[index] for index in photo_indices]
+        percentage = [round(percent, 2) for percent in percentage]
 
         # labels of those percentages
-        em = [self.labels[x] for x in photo_indices]
+        emotions = [self.labels[index] for index in photo_indices]
 
         celebrity, tweet = self.__get_tweet_info(self.celeb, probab, photo_indices)
 
         return {'top_left_x': x.item(), 'top_left_y': y.item(), 'height': h.item(), 'width': w.item()
-                , 'emotions': em, 'emotion_percentages': percentage, 'celebrity': celebrity, 'tweet': tweet}
+                , 'emotions': emotions, 'emotion_percentages': percentage, 'celebrity': celebrity, 'tweet': tweet}
 
     def draw_face_boundary(self, image, face, color):
         x, y, w, h = face

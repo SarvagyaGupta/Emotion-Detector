@@ -23,8 +23,6 @@ def predict():
     _, output_image = cv2.imencode('.jpg', input_image)
     predictions['image'] = base64.b64encode(output_image)
 
-    print predictions
-
     return predictions
 
 
