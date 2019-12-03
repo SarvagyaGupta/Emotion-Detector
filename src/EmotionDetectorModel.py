@@ -9,6 +9,7 @@ from keras.losses import categorical_crossentropy
 from keras.optimizers import Adam
 from DataLoader import DataLoader
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 num_features = 64
@@ -54,10 +55,20 @@ model.add(Dense(num_labels, activation='softmax'))
 model.compile(optimizer=Adam(), loss=categorical_crossentropy)
 
 # Running the model
-model.fit(np.array(train_pixels), np.array(train_emotions), batch_size=batch_size, epochs=epochs, shuffle=True)
+history = model.fit(np.array(train_pixels), np.array(train_emotions)
+                    , validation_data=(np.array(test_pixels), np.array(test_emotions)), batch_size=batch_size
+                    , epochs=epochs, shuffle=True)
+
+plt.plot(history.history['accuracy'])
+plt.plot(history.history['val_accuracy'])
+plt.title('model accuracy')
+plt.ylabel('accuracy')
+plt.xlabel('epoch')
+plt.legend(['train', 'test'], loc='upper left')
+plt.savefig('../model/accuracy')
 
 # Saving the model
 saved_model = model.to_json()
-with open("../model/emotion_detector_3.json", "w") as json_file:
+with open("../model/emotion_detector_plot.json", "w") as json_file:
     json_file.write(saved_model)
-model.save_weights("../model/emotion_detector_3.h5")
+model.save_weights("../model/emotion_detector_plot.h5")
