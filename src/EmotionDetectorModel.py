@@ -31,8 +31,8 @@ keras.backend.set_session(sess)
 
 num_features = 64
 num_labels = 7
-batch_size = 64
-epochs = 175
+batch_size = 128
+epochs = 150
 width, height = 48, 48
 
 data = DataLoader(num_labels)
