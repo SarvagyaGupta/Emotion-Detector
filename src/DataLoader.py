@@ -15,7 +15,9 @@ class DataLoader:
         self.num_emotions = num_emotions
 
         train, test = train_test_split(self.dataset, test_size=0.3)
+        validation, test = train_test_split(test, test_size=0.3)
         self.train = self.__process_data(train)
+        self.validation = self.__process_data(validation)
         self.test = self.__process_data(test)
 
     def __process_data(self, data):
