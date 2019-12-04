@@ -7,6 +7,17 @@ from keras.models import Sequential
 from keras.regularizers import l2
 from keras.losses import categorical_crossentropy
 from keras.optimizers import Adam
+
+import keras
+import tensorflow as tf
+
+# config = tf.compat.v1.ConfigProto( device_count = {'GPU': 1 , 'CPU': 4} )
+# sess = tf.compat.v1.Session(config=config)
+# tf.compat.v1.keras.backend.set_session(sess)
+
+config = tf.ConfigProto( device_count = {'GPU': 1 , 'CPU': 56} )
+sess = tf.Session(config=config)
+keras.backend.set_session(sess)
 from DataLoader import DataLoader
 import numpy as np
 import matplotlib.pyplot as plt
