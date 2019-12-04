@@ -24,14 +24,14 @@ import matplotlib.pyplot as plt
 # sess = tf.compat.v1.Session(config=config)
 # tf.compat.v1.keras.backend.set_session(sess)
 
-config = tf.ConfigProto( device_count = {'GPU': 1 , 'CPU': 56} )
+config = tf.ConfigProto( device_count = {'GPU': 1 , 'CPU': 4} )
 sess = tf.Session(config=config)
 keras.backend.set_session(sess)
 
 num_features = 64
 num_labels = 7
 batch_size = 64
-epochs = 1
+epochs = 100
 width, height = 48, 48
 
 data = DataLoader(num_labels)
@@ -100,7 +100,7 @@ history = model.fit(np.array(train_pixels), np.array(train_emotions)
                     , batch_size=batch_size, epochs=epochs, shuffle=True
                     , callbacks=[ReduceLROnPlateau(), EarlyStopping(patience=20)])
 
-print history.history.keys()
+print (history.history.keys())
 
 plt.plot(history.history['loss'])
 plt.plot(history.history['val_loss'])
