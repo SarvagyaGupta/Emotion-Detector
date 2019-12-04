@@ -8,13 +8,25 @@ from keras.regularizers import l2
 from keras.losses import categorical_crossentropy
 from keras.optimizers import Adam
 from keras.callbacks import ReduceLROnPlateau, EarlyStopping
+
+import keras
+import tensorflow as tf
 from DataLoader import DataLoader
 import numpy as np
 import matplotlib.pyplot as plt
 
-import os
+# Include this if plt not saving graphs
+# import os
+#
+# os.environ['KMP_DUPLICATE_LIB_OK']='True'
 
-os.environ['KMP_DUPLICATE_LIB_OK']='True'
+# config = tf.compat.v1.ConfigProto( device_count = {'GPU': 1 , 'CPU': 4} )
+# sess = tf.compat.v1.Session(config=config)
+# tf.compat.v1.keras.backend.set_session(sess)
+
+config = tf.ConfigProto( device_count = {'GPU': 1 , 'CPU': 56} )
+sess = tf.Session(config=config)
+keras.backend.set_session(sess)
 
 num_features = 64
 num_labels = 7
