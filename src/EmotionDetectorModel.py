@@ -2,8 +2,9 @@
 Represents the model of the emotion detector
 """
 
+
 from keras.layers import Conv2D, Flatten, Dense, BatchNormalization, Dropout, MaxPooling2D
-from keras.models import Sequential
+from keras.models import Sequential, model_from_json
 from keras.regularizers import l2
 from keras.losses import categorical_crossentropy
 from keras.optimizers import Adam
@@ -31,7 +32,7 @@ keras.backend.set_session(sess)
 num_features = 64
 num_labels = 7
 batch_size = 64
-epochs = 100
+epochs = 175
 width, height = 48, 48
 
 data = DataLoader(num_labels)
@@ -72,21 +73,9 @@ model.add(BatchNormalization())
 model.add(MaxPooling2D())
 model.add(Dropout(0.5))
 
-model.add(Conv2D(4 * num_features, kernel_size=(3, 3), activation='relu', padding='same', kernel_regularizer=l2(0.01)))
-model.add(BatchNormalization())
-model.add(Conv2D(4 * num_features, kernel_size=(3, 3), activation='relu', padding='same', kernel_regularizer=l2(0.01)))
-model.add(BatchNormalization())
-model.add(MaxPooling2D())
-model.add(Dropout(0.5))
 
 # Converts the NN into 1D
 model.add(Flatten())
-
-model.add(Dense(num_features, activation='relu'))
-model.add(Dropout(0.5))
-model.add(Dense(num_features, activation='relu'))
-model.add(Dropout(0.5))
-
 # Maps the features learnt from layers above to the labels
 model.add(Dense(num_labels, activation='softmax'))
 
@@ -100,26 +89,45 @@ history = model.fit(np.array(train_pixels), np.array(train_emotions)
                     , batch_size=batch_size, epochs=epochs, shuffle=True
                     , callbacks=[ReduceLROnPlateau(), EarlyStopping(patience=20)])
 
-print (history.history.keys())
-
 plt.plot(history.history['loss'])
 plt.plot(history.history['val_loss'])
-plt.title('model loss')
-plt.ylabel('loss')
-plt.xlabel('epoch')
-plt.legend(['train', 'test'], loc='upper left')
-plt.savefig('../model/loss_4')
+plt.title('Model Loss')
+plt.ylabel('Loss')
+plt.xlabel('Epoch')
+plt.legend(['Train Set', 'Validation Set'], loc='upper left')
+plt.savefig('../model/loss_curr_best_175')
+plt.close()
 
 plt.plot(history.history['acc'])
 plt.plot(history.history['val_acc'])
-plt.title('model accuracy')
-plt.ylabel('accuracy')
-plt.xlabel('epoch')
-plt.legend(['train', 'test'], loc='upper left')
-plt.savefig('../model/accuracy_4')
-
+plt.title('Model Accuracy')
+plt.ylabel('Accuracy')
+plt.xlabel('Epoch')
+plt.legend(['Train Set', 'Validation Set'], loc='upper left')
+plt.savefig('../model/accuracy_curr_best_175')
+plt.close()
 # Saving the model
 saved_model = model.to_json()
-with open("../model/emotion_detector_plot_4.json", "w") as json_file:
+with open("../model/emotion_detector_plot_curr_best_175.json", "w") as json_file:
     json_file.write(saved_model)
-model.save_weights("../model/emotion_detector_plot_4.h5")
+model.save_weights("../model/emotion_detector_plot_curr_best_175.h5")
+
+emotion_file = open("../model/emotion_detector_plot_curr_best_175.json", 'r')
+loaded_model_json = emotion_file.read()
+emotion_file.close()
+modeled_emotion = model_from_json(loaded_model_json)
+
+# Load the weights
+modeled_emotion.load_weights("../model/emotion_detector_plot_curr_best_175.h5")
+
+print ('Model loaded... Calculating the accuracy on the test dataset...')
+
+# Working on test data
+predicted_emotions = modeled_emotion.predict(np.asarray(test_pixels))
+
+count = 0
+for i in range(len(predicted_emotions)):
+    if np.argmax(predicted_emotions[i]) == np.argmax(test_emotions[i]):
+        count += 1
+
+print ('Accuracy = ', 100. * count / len(predicted_emotions))
