@@ -28,7 +28,7 @@ class EmotionDetector:
         self.labels = ['Angry', 'Disgust', 'Fear', 'Happy', 'Sad', 'Surprise', 'Neutral']
 
         # reading the celeb tweets
-        self.celeb = pd.read_csv("../FinalCelebrityTweets.csv")
+        self.celeb = pd.read_csv("../Got.csv")
 
     def predict_emotion(self, image):
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
