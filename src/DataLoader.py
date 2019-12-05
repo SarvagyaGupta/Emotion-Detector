@@ -17,9 +17,7 @@ class DataLoader:
         self.num_emotions = num_emotions
         self.train, test = train_test_split(self.dataset, test_size=0.3)
         validation, test = train_test_split(test, test_size=0.3)
-        print(len(self.train))
         self.__data_augment()
-        print(len(self.train))
         self.train = self.__process_data(self.train)
         self.validation = self.__process_data(validation)
         self.test = self.__process_data(test)
@@ -44,5 +42,3 @@ class DataLoader:
             p = p.flatten()
             p = " ".join(p)
             self.train = self.train.append({'pixels': p, 'emotion': em, 'Usage': "Training"}, ignore_index=True)
-
-DataLoader(7)

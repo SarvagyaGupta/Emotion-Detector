@@ -2,14 +2,11 @@
 Predicts the emotion from an image
 """
 
-from keras.models import model_from_json
-import numpy as np
-import cv2
-import pandas as pd
 import heapq
-import random
-import math
-import sys
+
+import cv2
+import numpy as np
+from keras.models import model_from_json
 
 
 class EmotionDetector:
@@ -27,9 +24,6 @@ class EmotionDetector:
 
         self.labels = ['Angry', 'Disgust', 'Fear', 'Happy', 'Sad', 'Surprise', 'Neutral']
 
-        # reading the celeb tweets
-        self.celeb = pd.read_csv("../Got.csv")
-
     def predict_emotion(self, image):
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         face_classifier = cv2.CascadeClassifier('../haarcascade_frontalface_default.xml')
@@ -41,40 +35,6 @@ class EmotionDetector:
             predictions['predictions'].append(self.__predict_face_emotion(gray, face))
 
         return predictions
-
-    def __calculate_closeness(self, x, y):
-        total = 0
-        for i in range(len(x)):
-            total += (x[i] - y[i]) ** 2
-        total = math.sqrt(total)
-        return total
-
-    def __get_tweet_info(self, data, probabilities, photo_indices):
-        result = []
-        minimum = sys.maxsize
-
-        for index_label, row_series in data.iterrows():
-            temp = [float(x) for x in data.at[index_label, 'probs'][2:-2].split()]
-            indices = heapq.nlargest(3, range(len(temp)), temp.__getitem__)
-            e = 0
-            for i in indices:
-                if i in photo_indices:
-                    e += 1
-            if e > 1 and photo_indices[0] == indices[0]:
-                p = self.__calculate_closeness(temp, probabilities)
-                if p < minimum:
-                    minimum = p
-                    tweet = data.at[index_label, 'content']
-                    person = data.at[index_label, 'author']
-                    result.append((person, tweet, p))
-
-        if len(result) == 0:
-            return "", ""
-
-        result.sort(key=lambda tup: tup[2])
-        result = result[:2]
-        twe = random.choice(result)
-        return twe[0], twe[1]
 
     def __predict_face_emotion(self, gray, face):
         x, y, w, h = face
@@ -98,10 +58,8 @@ class EmotionDetector:
         # labels of those percentages
         emotions = [self.labels[index] for index in photo_indices]
 
-        celebrity, tweet = self.__get_tweet_info(self.celeb, probab, photo_indices)
-
         return {'top_left_x': x.item(), 'top_left_y': y.item(), 'height': h.item(), 'width': w.item()
-                , 'emotions': emotions, 'emotion_percentages': percentage, 'celebrity': celebrity, 'tweet': tweet}
+                , 'emotions': emotions, 'emotion_percentages': percentage}
 
     def draw_face_boundary(self, image, face, color):
         x, y, w, h = face
