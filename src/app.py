@@ -11,8 +11,8 @@ detector = EmotionDetector()
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    data = request.files['image'].read()
-    input_image = np.asarray(bytearray(data), dtype='uint8')
+    input_image = base64.b64decode(request.data)
+    input_image = np.asarray(bytearray(input_image), dtype='uint8')
     input_image = cv2.imdecode(input_image, cv2.IMREAD_COLOR)
 
     predictions = detector.predict_emotion(input_image)

@@ -13,16 +13,16 @@ class EmotionDetector:
 
     def __init__(self):
         # Load the model
-        emotion_file = open('../model/emotion_detector.json', 'r')
+        emotion_file = open('../model/current_best.json', 'r')
         loaded_model_json = emotion_file.read()
         emotion_file.close()
         self.modeled_emotion = model_from_json(loaded_model_json)
         self.modeled_emotion._make_predict_function()
 
         # Load the weights
-        self.modeled_emotion.load_weights('../model/emotion_detector.h5')
+        self.modeled_emotion.load_weights('../model/current_best.h5')
 
-        self.labels = ['Angry', 'Disgust', 'Fear', 'Happy', 'Sad', 'Surprise', 'Neutral']
+        self.labels = ['Anger', 'Disgust', 'Fear', 'Happy', 'Sad', 'Surprise', 'Neutral']
 
     def predict_emotion(self, image):
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
