@@ -10,14 +10,12 @@ import base64
 class Image(BaseModel):
     encoded_image: str
 
-#app = Flask(__name__)
 app = FastAPI()
 detector = EmotionDetector()
 
 
 @app.post('/predict/image')
 def predict_image(image: Image):
-    print (image)
     input_image = get_input_image(image.encoded_image)
     predictions = detector.predict_emotion(input_image)
     for prediction in predictions['predictions']:
@@ -29,17 +27,15 @@ def predict_image(image: Image):
 
     return predictions
 
+
 @app.post('/predict/live')
 def predict_live(image: Image):
     input_image = get_input_image(image.encoded_image)
     return detector.predict_live_emotion(input_image)
 
+
 def get_input_image(encoded_image):
     input_image = base64.b64decode(encoded_image)
     input_image = np.asarray(bytearray(input_image), dtype='uint8')
     return cv2.imdecode(input_image, cv2.IMREAD_COLOR)
-
-
-#if __name__ == '__main__':
-#    app.run(host='0.0.0.0', port=5000, debug=True)
 
