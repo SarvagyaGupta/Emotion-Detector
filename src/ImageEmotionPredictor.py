@@ -10,6 +10,11 @@ from keras.models import model_from_json
 import base64
 import tensorflow as tf
 from tensorflow import keras
+import redis
+import time
+import json
+import settings
+import base64
 
 
 config = tf.ConfigProto(
@@ -18,6 +23,8 @@ config = tf.ConfigProto(
 )
 session = tf.Session(config=config)
 keras.backend.set_session(session)
+
+db = redis.StrictRedis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=settings.REDIS_DB)
 
 
 class EmotionDetector:
@@ -47,17 +54,72 @@ class EmotionDetector:
 
         return predictions
 
-    def predict_live_emotion(self, image):
-        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        face_classifier = cv2.CascadeClassifier('../haarcascade_frontalface_default.xml')
-        faces = face_classifier.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5)
+    def predict_live_emotion(self):
+        while True:
+            queue = db.lrange(settings.IMAGE_QUEUE, 0, settings.BATCH_SIZE - 1)
+            face_ids = []
+            batch = None
 
-        for face in faces:
-            self.__predict_live_emotion(image, gray, face)
+            for q in queue:
+                q = json.loads(q.decode("utf-8"))
 
-        _, output_image = cv2.imencode('.jpg', image)
-        output_image = base64.b64encode(output_image)
-        return {'image': output_image}
+                input_image = base64.b64decode(q["image"])
+                input_image = np.asarray(bytearray(input_image), dtype='uint8')
+                input_image = cv2.imdecode(input_image, cv2.IMREAD_COLOR)
+                gray_image = cv2.cvtColor(input_image, cv2.COLOR_BGR2GRAY)
+
+                face_classifier = cv2.CascadeClassifier('../haarcascade_frontalface_default.xml')
+                faces = face_classifier.detectMultiScale(gray_image, scaleFactor=1.1, minNeighbors=5)
+
+                for face in faces:
+                    x, y, w, h = face
+                    roi_gray = gray_image[y:y + h, x:x + w]
+                    cropped_img = np.expand_dims(np.expand_dims(cv2.resize(roi_gray, (48, 48)), -1), 0)
+                    cv2.normalize(cropped_img, cropped_img, alpha=0, beta=1, norm_type=cv2.NORM_L2, dtype=cv2.CV_32F)
+                    
+                    if batch is None:
+                        batch = cropped_img
+                    else:
+                        batch = np.vstack([batch, cropped_img])
+ 
+                    face_ids.append((q["id"], input_image, face))
+
+            if len(face_ids) > 0:
+                print("Batch size = {}".format(len(face_ids)))
+
+                predictions = self.modeled_emotion.predict(batch)
+                predicted_emotions = np.take(self.labels, np.argmax(predictions, axis=1))
+
+                curr_id = None
+                curr_image = None
+                for (face_id, predicted_emotion) in zip(face_ids, predicted_emotions):
+                    self.draw_face_boundary(face_id[1], face_id[2], (0, 255, 0))
+                    self.write_emotion(face_id[1], face_id[2], predicted_emotion, (0, 255, 0)) 
+
+                    if curr_id is None:
+                        curr_id = face_id[0]
+                        curr_image = face_id[1]
+
+                    if curr_id != face_id[0]:
+                        _, output_image = cv2.imencode(".jpg", curr_image)
+                        output_image = base64.b64encode(output_image).decode("utf-8")
+
+                        d = {"image": output_image}
+                        db.set(curr_id, json.dumps(d))
+
+                        curr_id = face_id[0]
+                        curr_image = face_id[1]
+
+                _, output_image = cv2.imencode(".jpg", curr_image)
+                output_image = base64.b64encode(output_image).decode("utf-8")
+
+                d = {"image": output_image}
+                db.set(curr_id, json.dumps(d))
+
+                db.ltrim(settings.IMAGE_QUEUE, len(face_ids), -1)
+
+
+            time.sleep(settings.SERVER_SLEEP)
 
 
     def __predict_live_emotion(self, image, gray, face):
@@ -112,3 +174,7 @@ class EmotionDetector:
     def write_emotion(self, image, face, emotion, color):
         x, y, w, h = face
         cv2.putText(image, emotion, (x, y), cv2.FONT_HERSHEY_SIMPLEX, 2, color, 2, cv2.LINE_AA)
+
+
+if __name__=="__main__":
+    EmotionDetector().predict_live_emotion()
