@@ -47,7 +47,7 @@ class EmotionDetector:
 
         return predictions
 
-    def predict_live_emotion(self, image):
+    """def predict_live_emotion(self, image):
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         face_classifier = cv2.CascadeClassifier('../haarcascade_frontalface_default.xml')
         faces = face_classifier.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5)
@@ -73,7 +73,7 @@ class EmotionDetector:
                 predicted_emotion = self.labels[int(np.argmax(prediction))]
 
                 self.draw_face_boundary(image, face, (0, 255, 0))
-                self.write_emotion(image, face, predicted_emotion, (0, 255, 0)) 
+                self.write_emotion(image, face, predicted_emotion, (0, 255, 0))"""
 
 
     def __predict_face_emotion(self, gray, face):
@@ -104,11 +104,11 @@ class EmotionDetector:
                         , 'emotions': emotions, 'emotion_percentages': percentage}
 
 
-    def draw_face_boundary(self, image, face, color):
+    """def draw_face_boundary(self, image, face, color):
         x, y, w, h = face
         cv2.rectangle(image, pt1=(x, y), pt2=(x + w, y + h), color=color, thickness=2)
 
 
     def write_emotion(self, image, face, emotion, color):
         x, y, w, h = face
-        cv2.putText(image, emotion, (x, y), cv2.FONT_HERSHEY_SIMPLEX, 2, color, 2, cv2.LINE_AA)
+        cv2.putText(image, emotion, (x, y), cv2.FONT_HERSHEY_SIMPLEX, 2, color, 2, cv2.LINE_AA)"""

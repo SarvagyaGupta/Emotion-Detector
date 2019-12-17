@@ -14,24 +14,10 @@ app = FastAPI()
 detector = EmotionDetector()
 
 
-@app.post('/predict/image')
+@app.post('/predict')
 def predict_image(image: Image):
     input_image = get_input_image(image.encoded_image)
-    predictions = detector.predict_emotion(input_image)
-    for prediction in predictions['predictions']:
-        detector.draw_face_boundary(input_image, (prediction['top_left_x'], prediction['top_left_y']
-                                                  , prediction['width'], prediction['height']), (0, 255, 0))
-
-    _, output_image = cv2.imencode('.jpg', input_image)
-    predictions['image'] = base64.b64encode(output_image)
-
-    return predictions
-
-
-@app.post('/predict/live')
-def predict_live(image: Image):
-    input_image = get_input_image(image.encoded_image)
-    return detector.predict_live_emotion(input_image)
+    return detector.predict_emotion(input_image)
 
 
 def get_input_image(encoded_image):
